@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Contactos</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        :root{ --verde:#85BB3A; --azul:#013369; --gris1:#0e2d51; --gris2:#11406a; }
+        body{font-family:'Segoe UI',sans-serif;margin:0;
+            background:url('/img/slider-syrmec.jpg') no-repeat center/cover fixed;color:white;}
+        /* Header */
+        header{background:rgba(133,187,58,.35);height:70px;display:flex;align-items:center;
+            justify-content:center;position:relative;}
+        .header-titulo{font-size:1.6rem;font-weight:600;color:white;text-align:center;}
+        header img{position:absolute;right:20px;top:50%;transform:translateY(-50%);height:65px;
+            filter:drop-shadow(2px 2px 3px #0006);}
+        .actualizado{position:absolute;left:20px;bottom:4px;font-size:.75rem;color:#ffffffcc;}
+        /* Contenedor y botones */
+        .container{max-width:1100px;margin:40px auto;}
+        .btn{background:var(--verde);color:white;padding:8px 15px;border-radius:8px;
+            font-weight:bold;font-size:.9rem;display:inline-block;transition:.2s;}
+        .btn:hover{background:#6ea229;transform:scale(1.05);}
+        .btn-danger{background:#d9534f;} .btn-danger:hover{background:#c9302c;}
+        .btn-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:20px;}
+        /* Tabla */
+        table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;
+            backdrop-filter:brightness(.9);}
+        thead th{background:#00264d;padding:12px;border:1px solid #1a3b5f;}
+        tbody td{padding:12px;text-align:center;border:1px solid #1a3b5f;}
+        tbody tr:nth-child(even){background:var(--gris1);}
+        tbody tr:nth-child(odd){background:var(--gris2);}
+        tbody tr:hover{transform:scale(1.01);background:#14507f!important;cursor:pointer;}
+        /* Acciones */
+        .acciones a{font-size:.9rem;padding:6px 12px;border-radius:8px;font-weight:bold;color:white;
+            text-decoration:none;margin:0 4px;transition:.2s;}
+        .editar{background:#f0ad4e;} .editar:hover{background:#ec971f;transform:scale(1.1);}
+        .eliminar{background:#d9534f;} .eliminar:hover{background:#c9302c;transform:scale(1.1);}
+        /* Estados */
+        .estado-ACTIVO{background:#85BB3A;} .estado-INACTIVO{background:#999;}
+        .estado-REBOTADO{background:#f39c12;} .estado-SUSCRITO{background:#2980b9;}
+        .estado-DESUSCRITO{background:#c0392b;} .estado-td{color:white;font-weight:bold;}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="actualizado">
+        Última actualización:
+        <span th:text="${#dates.format(#dates.createNow(),'dd/MM/yyyy HH:mm')}"></span>
+    </div>
+    <h1 class="header-titulo">Gestión de Contactos – Mailrelay</h1>
+    <img src="/img/logo-syrmec.png" alt="Logo Syrmec">
+</header>
+
+<div class="container">
+    <h2 style="text-align:center;margin-bottom:30px;">📋 Lista de Contactos</h2>
+
+    <div th:if="${mensaje}" style="text-align:center;margin-bottom:15px;">
+        <p th:text="${mensaje}"></p>
+    </div>
+
+    <!-- ============ FORM eliminar múltiples ============ -->
+    <form th:action="@{/contactos/eliminar-multiple}" method="post">
+
+        <table>
+            <thead>
+            <tr>
+                <th><input type="checkbox" id="chkAll"
+                           onclick="document.querySelectorAll('.ck').forEach(c=>c.checked=this.checked)"></th>
+                <th>ID</th><th>Email</th><th>Estado</th>
+                <th>Última Apertura</th><th>Eliminado</th><th>Acciones</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="contacto : ${contactos}">
+                <td><input type="checkbox" name="ids" th:value="${contacto.id}" class="ck"></td>
+                <td th:text="${contacto.id}"></td>
+                <td th:text="${contacto.email}"></td>
+
+                <td th:class="'estado-td estado-' + ${contacto.estado.name()}">
+                    <span th:switch="${contacto.estado.name()}">
+                        <span th:case="'ACTIVO'">✔️ Activo</span>
+                        <span th:case="'INACTIVO'">⏸️ Inactivo</span>
+                        <span th:case="'REBOTADO'">⚠️ Rebotado</span>
+                        <span th:case="'SUSCRITO'">📩 Suscrito</span>
+                        <span th:case="'DESUSCRITO'">❌ Desuscrito</span>
+                        <span th:case="*">🔘 Desconocido</span>
+                    </span>
+                </td>
+
+                <td th:text="${#temporals.format(contacto.ultimaApertura,'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${contacto.eliminado} ? 'Sí' : 'No'"></td>
+
+                <td class="acciones">
+                    <a th:href="@{/contactos/editar/{id}(id=${contacto.id})}" class="editar">✏️</a>
+                    <a th:href="@{/contactos/eliminar/{id}(id=${contacto.id})}" class="eliminar"
+                       onclick="return confirm('¿Eliminar este contacto?');">🗑️</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- ─── Barra de botones centrados ─── -->
+        <div class="btn-bar">
+            <button type="submit" class="btn btn-danger">🗑️ Eliminar seleccionados</button>
+            <a href="/contactos/nuevo"  class="btn">➕ Nuevo</a>
+            <a href="/contactos/exportar" class="btn">📥 Exportar</a>
+        </div>
+    </form>
+    <!-- ============ FIN FORM eliminar múltiples ============ -->
+
+    <!-- Formulario Importar CSV (separado) -->
+    <form th:action="@{/contactos/importar}" method="post" enctype="multipart/form-data"
+          style="text-align:center;margin-top:15px;">
+        <input id="csv" type="file" name="archivo" accept=".csv" required
+               style="display:none;" onchange="this.form.submit()">
+        <button type="button" class="btn" onclick="document.getElementById('csv').click();">
+            📤 Importar CSV
+        </button>
+    </form>
+
+</div>
+</body>
+</html>
+

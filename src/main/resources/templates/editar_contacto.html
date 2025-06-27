@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Contacto</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: url('/img/slider-syrmec.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        .form-wrapper {
+            max-width: 600px;
+            margin: 80px auto;
+            background-color: rgba(0, 51, 105, 0.85); /* azul oscuro translúcido */
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="email"],
+        input[type="datetime-local"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="checkbox"] {
+            margin-top: 12px;
+        }
+
+        button[type="submit"] {
+            background-color: #85BB3A;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #6ea229;
+            transform: scale(1.05);
+        }
+
+        .volver {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .volver:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+    <h2>✏️ Editar Contacto</h2>
+
+    <form th:action="@{/contactos/actualizar}" th:object="${contacto}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <label for="email">Email:</label>
+        <input type="email" th:field="*{email}" id="email" required/>
+
+        <label for="estado">Estado:</label>
+        <select th:field="*{estado}" id="estado">
+            <option th:each="estado : ${estados}"
+                    th:value="${estado}"
+                    th:text="${estado}"
+                    th:selected="${estado} == *{estado}">
+            </option>
+        </select>
+
+        <label for="ultimaApertura">Última Apertura:</label>
+        <input type="datetime-local" th:field="*{ultimaApertura}" id="ultimaApertura" />
+
+        <label for="eliminado">
+            <input type="checkbox" th:field="*{eliminado}" id="eliminado" />
+            ¿Eliminado?
+        </label>
+
+        <button type="submit">💾 Actualizar</button>
+    </form>
+
+    <a class="volver" th:href="@{/contactos}">⬅️ Volver a la lista</a>
+</div>
+
+</body>
+</html>
